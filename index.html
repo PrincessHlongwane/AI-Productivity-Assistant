@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deskline — AI Workplace Productivity Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12161d;
+    --surface: #1b212b;
+    --surface-2: #232a35;
+    --border: #2c3542;
+    --text: #edeff2;
+    --text-muted: #8f9aa8;
+    --accent: #3ddc97;
+    --accent-dim: #2a9c6c;
+    --amber: #f2b441;
+    --coral: #e8735c;
+    --sky: #5fb0e8;
+    --violet: #a78bfa;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:18px 28px;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg, #151b23, #12161d);
+  }
+  .logo-mark{
+    width:34px;height:34px;border-radius:8px;
+    background:conic-gradient(from 210deg, var(--accent), var(--sky), var(--violet), var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px;color:#0b0f14;
+    flex-shrink:0;
+  }
+  .brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.02em;}
+  .brand span{color:var(--accent);}
+  .tag{
+    margin-left:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--text-muted);
+    border:1px solid var(--border);
+    padding:5px 10px;border-radius:20px;
+    letter-spacing:0.03em;
+  }
+  .layout{
+    display:flex;
+    flex:1;
+    min-height:0;
+  }
+  /* Sidebar styled as a set of file-organizer index tabs */
+  .sidebar{
+    width:230px;
+    flex-shrink:0;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    padding:18px 0;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .sidebar-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    padding:0 20px 10px 20px;
+  }
+  .tab-btn{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:13px 20px 13px 17px;
+    background:transparent;
+    border:none;
+    border-left:3px solid transparent;
+    color:var(--text-muted);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    text-align:left;
+    cursor:pointer;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .tab-btn:hover{background:var(--surface-2); color:var(--text);}
+  .tab-btn.active{
+    background:var(--surface-2);
+    color:var(--text);
+    border-left-color: var(--tab-color, var(--accent));
+  }
+  .tab-dot{
+    width:8px;height:8px;border-radius:2px;
+    background:var(--tab-color, var(--accent));
+    flex-shrink:0;
+  }
+  .tab-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--text-muted);
+    margin-left:auto;
+  }
+  .main{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    padding:26px 32px;
+    overflow-y:auto;
+  }
+  .panel-header{margin-bottom:18px;}
+  .panel-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--tab-color, var(--accent));
+    margin-bottom:6px;
+  }
+  .panel-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:24px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0 0 6px 0;
+  }
+  .panel-sub{color:var(--text-muted); font-size:13.5px; max-width:620px; line-height:1.5;}
+
+  .field-grid{display:flex; flex-direction:column; gap:14px; max-width:640px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-muted);
+    margin-bottom:6px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.02em;
+  }
+  .field input, .field select, .field textarea{
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    color:var(--text);
+    padding:10px 12px;
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    resize:vertical;
+  }
+  .field textarea{min-height:100px; line-height:1.5;}
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none; border-color:var(--tab-color, var(--accent));
+  }
+  .row2{display:flex; gap:12px;}
+  .row2 .field{flex:1;}
+
+  .run-btn{
+    margin-top:4px;
+    align-self:flex-start;
+    background:var(--tab-color, var(--accent));
+    color:#0b0f14;
+    border:none;
+    border-radius:8px;
+    padding:11px 20px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:opacity .15s, transform .1s;
+  }
+  .run-btn:hover{opacity:0.88;}
+  .run-btn:active{transform:scale(0.98);}
+  .run-btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+  .output-wrap{margin-top:22px; max-width:720px;}
+  .output-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    white-space:pre-wrap;
+    line-height:1.65;
+    font-size:14px;
+    min-height:60px;
+  }
+  .output-card:empty{display:none;}
+  .output-card.placeholder{
+    color:var(--text-muted);
+    font-style:italic;
+    font-size:13px;
+  }
+  .loading-line{
+    display:flex; align-items:center; gap:8px;
+    color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono',monospace;
+  }
+  .spin{
+    width:12px;height:12px;border-radius:50%;
+    border:2px solid var(--border);
+    border-top-color: var(--tab-color, var(--accent));
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Chatbot mode */
+  .chat-window{
+    max-width:720px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    flex:1;
+    min-height:280px;
+    max-height:420px;
+    overflow-y:auto;
+    padding:6px 2px;
+    margin-bottom:14px;
+  }
+  .msg{max-width:80%; padding:10px 14px; border-radius:10px; font-size:13.5px; line-height:1.55;}
+  .msg.user{align-self:flex-end; background:var(--tab-color, var(--accent)); color:#0b0f14; font-weight:500;}
+  .msg.bot{align-self:flex-start; background:var(--surface); border:1px solid var(--border); white-space:pre-wrap;}
+  .chat-input-row{display:flex; gap:10px; max-width:720px;}
+  .chat-input-row input{flex:1;}
+
+  .error-note{
+    color:var(--coral);
+    font-size:12.5px;
+    margin-top:10px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--border); border-radius:6px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-mark">D</div>
+  <div class="brand">Desk<span>line</span></div>
+  <div class="tag">AI Workplace Productivity Assistant</div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-label">Modules — 01 to 05</div>
+    <button class="tab-btn active" data-tab="email" style="--tab-color:#3ddc97;">
+      <span class="tab-dot"></span> Email Drafting <span class="tab-num">01</span>
+    </button>
+    <button class="tab-btn" data-tab="meeting" style="--tab-color:#5fb0e8;">
+      <span class="tab-dot"></span> Meeting Summary <span class="tab-num">02</span>
+    </button>
+    <button class="tab-btn" data-tab="tasks" style="--tab-color:#f2b441;">
+      <span class="tab-dot"></span> Task Planner <span class="tab-num">03</span>
+    </button>
+    <button class="tab-btn" data-tab="research" style="--tab-color:#a78bfa;">
+      <span class="tab-dot"></span> Research Brief <span class="tab-num">04</span>
+    </button>
+    <button class="tab-btn" data-tab="chat" style="--tab-color:#e8735c;">
+      <span class="tab-dot"></span> Assistant Chat <span class="tab-num">05</span>
+    </button>
+  </div>
+
+  <div class="main">
+
+    <!-- MODULE 1: EMAIL -->
+    <div class="module" id="mod-email">
+      <div class="panel-header">
+        <div class="panel-eyebrow" style="--tab-color:#3ddc97;">Module 01</div>
+        <h1 class="panel-title">Email Drafting</h1>
+        <p class="panel-sub">Turn a few bullet points into a clear, workplace-appropriate email in the tone you choose.</p>
+      </div>
+      <div class="field-grid">
+        <div class="row2">
+          <div class="field">
+            <label>Recipient / audience</label>
+            <input type="text" id="email-recipient" placeholder="e.g. my line manager, a client, the whole team" />
+          </div>
+          <div class="field">
+            <label>Tone</label>
+            <select id="email-tone">
+              <option>Professional</option>
+              <option>Friendly</option>
+              <option>Formal</option>
+              <option>Assertive</option>
+              <option>Apologetic</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Purpose of the email</label>
+          <input type="text" id="email-purpose" placeholder="e.g. request leave, follow up on a task, ask for feedback" />
+        </div>
+        <div class="field">
+          <label>Key points to include</label>
+          <textarea id="email-points" placeholder="One point per line works well."></textarea>
+        </div>
+        <button class="run-btn" style="--tab-color:#3ddc97;" onclick="runEmail()">Draft email →</button>
+      </div>
+      <div class="output-wrap">
+        <div class="output-card placeholder" id="email-output">Your drafted email will appear here.</div>
+      </div>
+    </div>
+
+    <!-- MODULE 2: MEETING SUMMARY -->
+    <div class="module" id="mod-meeting" style="display:none;">
+      <div class="panel-header">
+        <div class="panel-eyebrow" style="--tab-color:#5fb0e8;">Module 02</div>
+        <h1 class="panel-title">Meeting Summarization</h1>
+        <p class="panel-sub">Paste raw notes or a transcript and get a clean summary with decisions and action items.</p>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Meeting notes / transcript</label>
+          <textarea id="meeting-notes" style="min-height:180px;" placeholder="Paste your notes or transcript here..."></textarea>
+        </div>
+        <button class="run-btn" style="--tab-color:#5fb0e8;" onclick="runMeeting()">Summarize →</button>
+      </div>
+      <div class="output-wrap">
+        <div class="output-card placeholder" id="meeting-output">Your meeting summary will appear here.</div>
+      </div>
+    </div>
+
+    <!-- MODULE 3: TASK PLANNER -->
+    <div class="module" id="mod-tasks" style="display:none;">
+      <div class="panel-header">
+        <div class="panel-eyebrow" style="--tab-color:#f2b441;">Module 03</div>
+        <h1 class="panel-title">Task Planner</h1>
+        <p class="panel-sub">Describe your goal or workload and get a prioritized, realistic plan.</p>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Goal or list of tasks</label>
+          <textarea id="tasks-goal" placeholder="e.g. Prepare for Monday's client presentation and clear my backlog by Friday."></textarea>
+        </div>
+        <div class="field">
+          <label>Time available / deadline (optional)</label>
+          <input type="text" id="tasks-deadline" placeholder="e.g. 3 days, by Friday 5pm" />
+        </div>
+        <button class="run-btn" style="--tab-color:#f2b441;" onclick="runTasks()">Build plan →</button>
+      </div>
+      <div class="output-wrap">
+        <div class="output-card placeholder" id="tasks-output">Your task plan will appear here.</div>
+      </div>
+    </div>
+
+    <!-- MODULE 4: RESEARCH -->
+    <div class="module" id="mod-research" style="display:none;">
+      <div class="panel-header">
+        <div class="panel-eyebrow" style="--tab-color:#a78bfa;">Module 04</div>
+        <h1 class="panel-title">Research Assistance</h1>
+        <p class="panel-sub">Get a concise, structured briefing on a topic or question relevant to your work.</p>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Topic or question</label>
+          <textarea id="research-topic" placeholder="e.g. Summarize best practices for giving feedback to a struggling employee."></textarea>
+        </div>
+        <button class="run-btn" style="--tab-color:#a78bfa;" onclick="runResearch()">Research →</button>
+      </div>
+      <div class="output-wrap">
+        <div class="output-card placeholder" id="research-output">Your research briefing will appear here.</div>
+      </div>
+    </div>
+
+    <!-- MODULE 5: CHAT -->
+    <div class="module" id="mod-chat" style="display:none;">
+      <div class="panel-header">
+        <div class="panel-eyebrow" style="--tab-color:#e8735c;">Module 05</div>
+        <h1 class="panel-title">Assistant Chat</h1>
+        <p class="panel-sub">A general-purpose chat for quick workplace questions, brainstorming, or anything the other modules don't cover.</p>
+      </div>
+      <div class="chat-window" id="chat-window">
+        <div class="msg bot">Hi! Ask me anything work-related — I can help brainstorm, explain something, or just think out loud with you.</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') runChat();" />
+        <button class="run-btn" style="--tab-color:#e8735c;" onclick="runChat()">Send</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ---- Tab switching ----
+const tabs = document.querySelectorAll('.tab-btn');
+const modules = {
+  email: document.getElementById('mod-email'),
+  meeting: document.getElementById('mod-meeting'),
+  tasks: document.getElementById('mod-tasks'),
+  research: document.getElementById('mod-research'),
+  chat: document.getElementById('mod-chat'),
+};
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.values(modules).forEach(m => m.style.display = 'none');
+    modules[btn.dataset.tab].style.display = 'block';
+  });
+});
+
+// ---- Core API call ----
+async function callClaude(systemPrompt, userMessage) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userMessage }]
+    })
+  });
+  if (!response.ok) throw new Error("API request failed: " + response.status);
+  const data = await response.json();
+  return data.content.map(block => block.type === "text" ? block.text : "").join("\n").trim();
+}
+
+function setLoading(el, label) {
+  el.className = "output-card";
+  el.innerHTML = `<div class="loading-line"><span class="spin"></span> ${label}</div>`;
+}
+function setError(el, err) {
+  el.className = "output-card";
+  el.innerHTML = "";
+  const note = document.createElement('div');
+  note.className = "error-note";
+  note.textContent = "Something went wrong: " + err.message + ". Please try again.";
+  el.appendChild(note);
+}
+function setResult(el, text) {
+  el.className = "output-card";
+  el.textContent = text;
+}
+
+// ---- Module 1: Email ----
+async function runEmail() {
+  const recipient = document.getElementById('email-recipient').value.trim();
+  const tone = document.getElementById('email-tone').value;
+  const purpose = document.getElementById('email-purpose').value.trim();
+  const points = document.getElementById('email-points').value.trim();
+  const out = document.getElementById('email-output');
+  if (!purpose) { alert("Please describe the purpose of the email."); return; }
+  setLoading(out, "Drafting your email...");
+  try {
+    const system = "You are a workplace communication assistant. Write clear, well-structured professional emails. Include a subject line, greeting, body, and sign-off. Do not add explanations outside the email itself.";
+    const user = `Write an email.\nRecipient/audience: ${recipient || "a colleague"}\nTone: ${tone}\nPurpose: ${purpose}\nKey points to include:\n${points || "(use your judgement based on the purpose)"}`;
+    const result = await callClaude(system, user);
+    setResult(out, result);
+  } catch (e) { setError(out, e); }
+}
+
+// ---- Module 2: Meeting summary ----
+async function runMeeting() {
+  const notes = document.getElementById('meeting-notes').value.trim();
+  const out = document.getElementById('meeting-output');
+  if (!notes) { alert("Please paste some meeting notes or a transcript first."); return; }
+  setLoading(out, "Summarizing the meeting...");
+  try {
+    const system = "You summarize workplace meeting notes or transcripts. Produce: 1) a short overview (2-3 sentences), 2) key discussion points as bullets, 3) decisions made, 4) action items with owner and due date if mentioned (or 'unassigned'/'no date given' otherwise). Use clear headings.";
+    const result = await callClaude(system, notes);
+    setResult(out, result);
+  } catch (e) { setError(out, e); }
+}
+
+// ---- Module 3: Task planner ----
+async function runTasks() {
+  const goal = document.getElementById('tasks-goal').value.trim();
+  const deadline = document.getElementById('tasks-deadline').value.trim();
+  const out = document.getElementById('tasks-output');
+  if (!goal) { alert("Please describe your goal or tasks first."); return; }
+  setLoading(out, "Building your task plan...");
+  try {
+    const system = "You are a task-planning assistant for workplace productivity. Break the goal into a prioritized, realistic checklist. Group tasks logically, mark priority (High/Medium/Low), and give a suggested order. Keep it practical, not overwhelming.";
+    const user = `Goal or tasks: ${goal}\nTime available/deadline: ${deadline || "not specified"}`;
+    const result = await callClaude(system, user);
+    setResult(out, result);
+  } catch (e) { setError(out, e); }
+}
+
+// ---- Module 4: Research ----
+async function runResearch() {
+  const topic = document.getElementById('research-topic').value.trim();
+  const out = document.getElementById('research-output');
+  if (!topic) { alert("Please enter a topic or question first."); return; }
+  setLoading(out, "Researching...");
+  try {
+    const system = "You are a workplace research assistant. Give a concise, well-organized briefing: a short summary, then key points as bullets, then (if relevant) practical recommendations. Be accurate and note where something is a general guideline rather than a strict rule.";
+    const result = await callClaude(system, topic);
+    setResult(out, result);
+  } catch (e) { setError(out, e); }
+}
+
+// ---- Module 5: Chat ----
+let chatHistory = [];
+async function runChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const window_ = document.getElementById('chat-window');
+
+  const userDiv = document.createElement('div');
+  userDiv.className = 'msg user';
+  userDiv.textContent = msg;
+  window_.appendChild(userDiv);
+  input.value = '';
+  window_.scrollTop = window_.scrollHeight;
+
+  chatHistory.push({ role: 'user', content: msg });
+
+  const botDiv = document.createElement('div');
+  botDiv.className = 'msg bot';
+  botDiv.innerHTML = `<span class="loading-line"><span class="spin"></span> thinking...</span>`;
+  window_.appendChild(botDiv);
+  window_.scrollTop = window_.scrollHeight;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: "You are a helpful, concise workplace productivity assistant embedded in a tool called Deskline.",
+        messages: chatHistory
+      })
+    });
+    if (!response.ok) throw new Error("API request failed: " + response.status);
+    const data = await response.json();
+    const text = data.content.map(b => b.type === "text" ? b.text : "").join("\n").trim();
+    botDiv.textContent = text;
+    chatHistory.push({ role: 'assistant', content: text });
+  } catch (e) {
+    botDiv.className = 'msg bot';
+    botDiv.textContent = "Something went wrong: " + e.message;
+  }
+  window_.scrollTop = window_.scrollHeight;
+}
+</script>
+
+</body>
+</html>
