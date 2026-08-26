@@ -1,6 +1,24 @@
 # Deskline — AI-Powered Workplace Productivity Assistant
 
+![Status](https://img.shields.io/badge/status-complete-3ddc97) ![Program](https://img.shields.io/badge/CAPACITI-AI%20Skills%20Program-5fb0e8) ![License](https://img.shields.io/badge/license-MIT-a78bfa)
+
 A CAPACITI AI Skills Program project. Deskline is a browser-based assistant that automates five common workplace tasks using an AI model: **email drafting, meeting summarization, task planning, research assistance, and general chat.**
+
+## Features
+- 🗂️ Five purpose-built modules, each with its own tailored AI prompt — not one generic chatbot guessing what you need
+- ⚡ Instant, in-browser results — no installation, backend, or build step
+- 🧠 Documented prompt engineering behind every module (see `PROMPTS.md`)
+- 🎨 Clean, custom-designed interface (no template UI kit)
+- ✅ Built with responsible AI use in mind — see below
+
+## Screenshots
+_Add a screenshot of each module in action here — open `index.html`, fill in an example, and drag your screenshots into this repo (Add file → Upload files), then reference them below:_
+
+```markdown
+![Email Drafting module](screenshots/email-module.png)
+![Meeting Summary module](screenshots/meeting-module.png)
+![Task Planner module](screenshots/tasks-module.png)
+```
 
 ## Live demo
 Open `index.html` in any browser — no installation or build step required. All you need to run it inside Claude.ai as an Artifact is to paste the code there; if you deploy it elsewhere, you'll need to connect it to an AI API of your choice (see "How it works" below).
@@ -32,8 +50,12 @@ Deskline was built to explore how AI tools and prompt engineering can remove fri
 AI-Productivity-Assistant/
 ├── index.html      # the full application (UI + logic)
 ├── README.md        # this file
-└── PROMPTS.md        # prompt engineering documentation
+├── PROMPTS.md        # prompt engineering documentation
+└── LICENSE            # MIT license
 ```
 
 ## Author
 Princess Nomcebo Hlongwane — CAPACITI AI Skills Program, AI-Powered Workplace Productivity Assistant project.
+
+## License
+Released under the [MIT License](LICENSE).
